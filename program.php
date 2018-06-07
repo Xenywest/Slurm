@@ -42,7 +42,7 @@ class C
 
 class Notifier extends Controller
 {
-    public function isValidInput($command_line)
+    public function validate($command_line)
     {
         // TODO: Implement isValidInput() method.
     }
@@ -52,27 +52,111 @@ class Notifier extends Controller
         $lexic_analyzer = new Tokenization(Squeue::execute());
         $lexic_analyzer->tokenize();
 
-        //!TODO compare tokenized data and SQL data
+        $assoc_lexic = $lexic_analyzer->getAssocJobsIDtoUsername();
+
+        //!TODO change to get all with status != FINISHED and NOTIFIED
+        $assoc_sqldata = Job::getAll();
+
+        //два раза сортировка, приделать флаг, типа если сначала с скл перебором по лексеру не нашли, значит задание выполнено
+        //а второй раз если лексером перебором по скл не нашли, значит нужно добавить задание
+
+        /*если в списке с консоли нет задания в списке бд
+        И если в списке с консоли имя пользователя отсутствует в таблице соотношений, то не добавлять задание в БД*/
+
+        $this->CheckFromSQLtoConsole($assoc_lexic,$assoc_sqldata);
+        $this->CheckFromConsoletoSQL($assoc_lexic, $assoc_sqldata);
+
+        //Notify here
+
     }
+
+    /**
+     * Getting data from SQL table and then starts compare with console data
+     * If RECORD in SQL exists, but in CONSOLE does not exists => it means JOB is done, need to NOTIFY
+     * @param $assoc_lexic array
+     * @param $assoc_sqldata array
+     */
+    private function CheckFromSQLtoConsole($assoc_lexic, $assoc_sqldata)
+    {
+        foreach ($assoc_sqldata as $raw)
+        {
+            $job_found = C::FALSE;
+
+            foreach ($assoc_lexic as $job_id => $username)
+            {
+                if($raw['job_id'] == $job_id)
+                {
+                    $job_found = C::TRUE;
+                    break;
+                }
+            }
+
+            //TASK DONE
+            if($job_found === false)
+            {
+                $completed_job = Job::find($raw['job_id']);
+                $completed_job->status = C::DONE;
+                $completed_job->save();
+            }
+        }
+    }
+
+    /**
+     * Getting data from CONSOLE and then starts compare with SQL data
+     * If RECORD in Lexic exists, but in SQL does not exists => it means new JOB added, need to insert into SQL
+     * @param $assoc_lexic array
+     * @param $assoc_sqldata array
+     */
+    private function CheckFromConsoletoSQL($assoc_lexic, $assoc_sqldata)
+    {
+        foreach ($assoc_lexic as $job_id => $username)
+        {
+            //существует ли в бд соотношение пользователя
+            if(Users::isExists($username))
+            {
+                $job_found = C::FALSE;
+
+                foreach ($assoc_sqldata as $raw)
+                {
+                    if ($raw['job_id'] == $job_id)
+                    {
+                        $job_found = C::TRUE;
+                        break;
+                    }
+                }
+
+                if ($job_found === false)
+                {
+                    $new_job = new Job();
+                    $new_job->job_id = $job_id;
+                    $new_job->username = $username;
+                    $new_job->status = C::NEW;
+                    $new_job->save();
+                }
+            }
+        }
+    }
+
+
 }
 
 class AddRelate extends Controller
 {
-    public function isValidInput($input)
+    public function validate($input)
     {
         if(\strlen($input[C::USER_CLUSTER]) > C::USER_MAX_CHARS)
         {
             return false;//C::ERR_LONG;
         }
 
-        //!TODO add chat_id check
+        //!TODO add chat_id check and existance
         return true;
     }
 
     public function action()
     {
         $statement = $this->getDatabase()->getConnection()->prepare(
-            'INSERT INTO userlist ("username_cluster", "user_messager_token") VALUES (":username", ":token")'
+            'INSERT INTO userlist ("username_cluster", "user_messager_token") VALUES (":username" , ":token")'
         );
 
         $statement->bindParam(':username', $this->arguments[C::USER_CLUSTER_NAME]);
@@ -111,10 +195,11 @@ class DBManager
 
 abstract class Controller
 {
-    public $database;
+    private $database;
 
     public $arguments;
 
+    //!TODO move it AWAY to Model class
     public function __construct()
     {
         $this->database = new DBManager();
@@ -130,24 +215,19 @@ abstract class Controller
     {
         $this->arguments = $command_line;
 
-        if($this->isValidInput($this->arguments))
+        if($this->validate($this->arguments))
         {
             $this->action();
         }
     }
 
-    abstract public function isValidInput($command_line);
+    abstract public function validate($command_line);
 
     abstract public function action();
 
     public function getDatabase()
     {
         return $this->database;
-    }
-
-    public function getArguments()
-    {
-        return $this->arguments;
     }
 
 }
@@ -169,12 +249,12 @@ class Tokenization
 
     public $tokenized_data = array();
 
-    public $isTokenized = false;
+    private $isTokenized = false;
 
     private $jobs_id = array();
     /**
      * Tokenization constructor.
-     * @param $raw_data array
+     * @param $raw_data array from exec()
      */
     public function __construct($raw_data)
     {
