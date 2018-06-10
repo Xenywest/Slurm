@@ -10,25 +10,41 @@ class AddRelate extends Controller
 {
     public function validate($input)
     {
-        if(\strlen($input[C::USER_CLUSTER]) > C::USER_MAX_CHARS)
+        if(\count($input) < 4)
         {
+            //few args
+            echo 'few args';
+            return false;
+        }
+
+        if(\strlen($input[C::USER_CLUSTER_NAME]) > C::USER_MAX_CHARS)
+        {
+
+            echo 'too long';
             return false;//C::ERR_LONG;
         }
 
-        //!TODO add chat_id check and existance
+        //!TODO add token check and existance
+        if(User::exists(array('conditions' => array('username_cluster=?', $input[C::USER_CLUSTER_NAME]))))
+        {
+            //already has got universal token
+
+            echo 'already exists';
+            return false;
+        }
+
         return true;
     }
 
     public function action()
     {
-        $statement = $this->getDatabase()->getConnection()->prepare(
-            'INSERT INTO userlist ("username_cluster", "user_messager_token") VALUES (":username" , ":token")'
-        );
 
-        $statement->bindParam(':username', $this->arguments[C::USER_CLUSTER_NAME]);
-        $statement->bindParam(':token', $this->arguments[C::USER_TOKEN]);
-        $statement->execute();
+        $user = new User();
+        $user->username_cluster = $this->arguments[C::USER_CLUSTER_NAME];
+        $user->user_messager_token = $this->arguments[C::USER_TOKEN];
+        $user->save();
 
+        echo 'saved';
         //!TODO add OUT SUCCESSFUL
     }
 }

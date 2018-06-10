@@ -21,7 +21,7 @@ class Notifier extends Controller
         $assoc_lexic = $lexic_analyzer->getAssocJobsIDtoUsername();
 
         //!TODO change to get all with status != FINISHED and NOTIFIED
-        $assoc_sqldata = Job::getAll();
+        $assoc_sqldata = Job::all(array('condition' => array('status = ?', C::JOB_ADDED/*'1'*/)));
 
         //два раза сортировка, приделать флаг, типа если сначала с скл перебором по лексеру не нашли, значит задание выполнено
         //а второй раз если лексером перебором по скл не нашли, значит нужно добавить задание
@@ -33,7 +33,16 @@ class Notifier extends Controller
         $this->CheckFromConsoletoSQL($assoc_lexic, $assoc_sqldata);
 
         //Notify here
+        $this->Notify();
 
+    }
+
+    private function Notify()
+    {
+        $jobs_finished = Job::all(array('condition' => array('status = ?', C::JOB_FINISHED/*'2'*/)));
+
+        $sender = new Sender();
+        $sender->generateRequest($jobs_finished);
     }
 
     /**

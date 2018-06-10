@@ -12,12 +12,6 @@ abstract class Controller
 
     public $arguments;
 
-    //!TODO move it AWAY to Model class
-    public function __construct()
-    {
-        $this->database = new DBManager();
-    }
-
     public static function initialize($command_line)
     {
         $class = new static;

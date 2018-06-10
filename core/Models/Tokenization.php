@@ -43,7 +43,7 @@ class Tokenization
         foreach($this->tokenized_data as $str)
         {
             $exploded_string = explode(' ', $str);
-            $this->jobs_id[$exploded_string[C::JobID]] = $exploded_string[C::Username];
+            $this->jobs_id[$exploded_string[C::JOB_ID]] = $exploded_string[C::USER_NAME];
         }
     }
 

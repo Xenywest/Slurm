@@ -9,4 +9,9 @@
 class C
 {
     const COMMAND = 1;
+    const USER_CLUSTER_NAME = 2;
+    const USER_MAX_CHARS = 64;
+    const USER_TOKEN = 3;
+    const JOB_ID = 1;
+    const USER_NAME = 2;
 }
