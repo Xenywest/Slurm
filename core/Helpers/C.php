@@ -14,4 +14,6 @@ class C
     const USER_TOKEN = 3;
     const JOB_ID = 1;
     const USER_NAME = 2;
+    const JOB_ADDED = '1';
+    const JOB_FINISHED = '2';
 }

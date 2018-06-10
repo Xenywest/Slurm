@@ -7,22 +7,22 @@
  */
 
 
-require_once __DIR__ . '../Helpers/C.php';
-require_once __DIR__ . '../Helpers/Helper.php';
-require_once __DIR__ . '../Helpers/Security.php';
-require_once __DIR__ . '../Helpers/Squeue.php';
+require_once __DIR__ . '/../Helpers/C.php';
+require_once __DIR__ . '/../Helpers/Helper.php';
+require_once __DIR__ . '/../Helpers/Security.php';
+require_once __DIR__ . '/../Helpers/Squeue.php';
 
-require_once __DIR__ . '../Models/Tokenization.php';
-require_once __DIR__ . '../Services/Sender.php';
+require_once __DIR__ . '/../Models/Tokenization.php';
+require_once __DIR__ . '/../Services/Sender.php';
 
-require_once __DIR__ . '../Controllers/Controller.php';
-require_once __DIR__ . '../Controllers/AddRelate.php';
-require_once __DIR__ . '../Controllers/Notifier.php';
+require_once __DIR__ . '/../Controllers/Controller.php';
+require_once __DIR__ . '/../Controllers/AddRelate.php';
+require_once __DIR__ . '/../Controllers/Notifier.php';
 
-require_once __DIR__ . '../Application.php';
+require_once __DIR__ . '/../Application.php';
 
 
-require_once __DIR__ . '../vendor/php-activerecord/ActiveRecord.php';
+require_once __DIR__ . '/../vendor/php-activerecord/ActiveRecord.php';
 
 
 

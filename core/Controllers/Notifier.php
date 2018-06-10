@@ -55,22 +55,22 @@ class Notifier extends Controller
     {
         foreach ($assoc_sqldata as $raw)
         {
-            $job_found = C::FALSE;
+            $job_found = false;
 
             foreach ($assoc_lexic as $job_id => $username)
             {
                 if($raw['job_id'] == $job_id)
                 {
-                    $job_found = C::TRUE;
+                    $job_found = true;
                     break;
                 }
             }
 
-            //TASK DONE
+            //JOB_FINISHED
             if($job_found === false)
             {
                 $completed_job = Job::find($raw['job_id']);
-                $completed_job->status = C::DONE;
+                $completed_job->status = C::JOB_FINISHED;
                 $completed_job->save();
             }
         }
@@ -87,15 +87,15 @@ class Notifier extends Controller
         foreach ($assoc_lexic as $job_id => $username)
         {
             //существует ли в бд соотношение пользователя
-            if(Users::isExists($username))
+            if(User::exists(array('conditions' => array('username_cluster = ?', $username))))
             {
-                $job_found = C::FALSE;
+                $job_found = false;
 
                 foreach ($assoc_sqldata as $raw)
                 {
                     if ($raw['job_id'] == $job_id)
                     {
-                        $job_found = C::TRUE;
+                        $job_found = true;
                         break;
                     }
                 }
@@ -105,7 +105,7 @@ class Notifier extends Controller
                     $new_job = new Job();
                     $new_job->job_id = $job_id;
                     $new_job->username = $username;
-                    $new_job->status = C::NEW;
+                    $new_job->status = C::JOB_ADDED;
                     $new_job->save();
                 }
             }
