@@ -11,17 +11,18 @@ class Notifier extends Controller
     public function validate($command_line)
     {
         // TODO: Implement isValidInput() method.
+        return true;
     }
 
     public function action()
     {
+
         $lexic_analyzer = new Tokenization(Squeue::execute());
         $lexic_analyzer->tokenize();
 
         $assoc_lexic = $lexic_analyzer->getAssocJobsIDtoUsername();
-
         //!TODO change to get all with status != FINISHED and NOTIFIED
-        $assoc_sqldata = Job::all(array('condition' => array('status = ?', C::JOB_ADDED/*'1'*/)));
+        $assoc_sqldata = Job::find('all', array('conditions' => array('status = ?', C::JOB_ADDED)));
 
         //два раза сортировка, приделать флаг, типа если сначала с скл перебором по лексеру не нашли, значит задание выполнено
         //а второй раз если лексером перебором по скл не нашли, значит нужно добавить задание
@@ -31,7 +32,6 @@ class Notifier extends Controller
 
         $this->CheckFromSQLtoConsole($assoc_lexic,$assoc_sqldata);
         $this->CheckFromConsoletoSQL($assoc_lexic, $assoc_sqldata);
-
         //Notify here
         $this->Notify();
 
@@ -39,7 +39,11 @@ class Notifier extends Controller
 
     private function Notify()
     {
-        $jobs_finished = Job::all(array('condition' => array('status = ?', C::JOB_FINISHED/*'2'*/)));
+        $jobs_finished = Job::find_by_sql('SELECT jobs.job_id, userlist.user_messager_token
+                                                FROM jobs, userlist WHERE jobs.status = 2 
+                                                AND jobs.username = userlist.username_cluster');
+
+        //'all', array('conditions' => array('status = ?', C::JOB_FINISHED)));
 
         $sender = new Sender();
         $sender->generateRequest($jobs_finished);
@@ -59,7 +63,7 @@ class Notifier extends Controller
 
             foreach ($assoc_lexic as $job_id => $username)
             {
-                if($raw['job_id'] == $job_id)
+                if($raw->job_id == $job_id)
                 {
                     $job_found = true;
                     break;
@@ -69,7 +73,7 @@ class Notifier extends Controller
             //JOB_FINISHED
             if($job_found === false)
             {
-                $completed_job = Job::find($raw['job_id']);
+                $completed_job = Job::find(array('conditions' => array('job_id = ?', $raw->job_id)));
                 $completed_job->status = C::JOB_FINISHED;
                 $completed_job->save();
             }
@@ -93,7 +97,7 @@ class Notifier extends Controller
 
                 foreach ($assoc_sqldata as $raw)
                 {
-                    if ($raw['job_id'] == $job_id)
+                    if ($raw->job_id == $job_id)
                     {
                         $job_found = true;
                         break;

@@ -10,26 +10,25 @@ class AddRelate extends Controller
 {
     public function validate($input)
     {
-        if(\count($input) < 4)
+        var_dump($input);
+        if(\count($input) < 4 || \count($input) > 4)
         {
             //few args
-            echo 'few args';
+            Logger::log("Error\nSyntax: php app.php add <username> <token>");
             return false;
         }
 
         if(\strlen($input[C::USER_CLUSTER_NAME]) > C::USER_MAX_CHARS)
         {
 
-            echo 'too long';
+            Logger::log("Error\nUsername too long");
             return false;//C::ERR_LONG;
         }
 
         //!TODO add token check and existance
         if(User::exists(array('conditions' => array('username_cluster=?', $input[C::USER_CLUSTER_NAME]))))
         {
-            //already has got universal token
-
-            echo 'already exists';
+            Logger::log("Error\nUser already exists");
             return false;
         }
 

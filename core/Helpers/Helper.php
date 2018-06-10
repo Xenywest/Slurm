@@ -11,12 +11,11 @@ class Helper
 
     public static function getController($command)
     {
-        $controllers = array('adduser' => 'AddRelate',
+        $controllers = array('add' => 'AddRelate',
             'delete' => 'DeleteRelate',
             'show' => 'ShowRelate',
             'notify' => 'Notifier',
         );
-
         return $controllers[$command];
     }
 

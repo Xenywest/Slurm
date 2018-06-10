@@ -11,7 +11,7 @@ require_once __DIR__ . '/../Helpers/C.php';
 require_once __DIR__ . '/../Helpers/Helper.php';
 require_once __DIR__ . '/../Helpers/Security.php';
 require_once __DIR__ . '/../Helpers/Squeue.php';
-
+require_once __DIR__ . '/../Helpers/Logger.php';
 require_once __DIR__ . '/../Models/Tokenization.php';
 require_once __DIR__ . '/../Services/Sender.php';
 
@@ -30,13 +30,15 @@ require_once __DIR__ . '/../vendor/php-activerecord/ActiveRecord.php';
 class Config
 {
     //SETUP BLOCK
-
+    //=================DATABASE===================
     //CHOOSE DB: sqlite OR mysql OR pgsql
     public static $db_type = 'sqlite';
 
     //SQLite information
-    //database path from current path /core/Config/Config.php
-    private static $sqlite_database = '/sqlite.db';
+    //database FULL path from current path /etc/service/core/Config/Config.php
+    //for windows use \
+    //for linux /
+    private static $sqlite_database = 'c:\webserver\www\magister\Slurm\core\Config\sqlite.db';
 
 
     //MYSQL information
@@ -50,7 +52,6 @@ class Config
     private static $mysql_address = 'localhost';
 
     //POSTGRESQL information
-
     //user
     private static $pgsql_user = 'root';
     //password
@@ -59,6 +60,10 @@ class Config
     private static $pgsql_address = 'localhost';
     //database
     private static $pgsql_database = 'database';
+    //=================END SECTION=================
+
+
+
 
     /**
      * @return string
@@ -75,23 +80,29 @@ class Config
             self::$pgsql_address . '/' . self::$pgsql_database;
     }
 
-    private static function getSQLiteDB()
+    public static function getSQLiteDB()
     {
-        return 'sqlite://'. self::$sqlite_database;
+       // return 'sqlite://'.__DIR__.'/'. self::$sqlite_database;
+
+       return self::$sqlite_database;
     }
 
     public static function getConnections()
     {
+
+        $kostil = self::getSQLiteDB();
+        $kostil = str_replace('\\','/',$kostil);
+
         return array('mysql' => self::getMySQLDB(),
             'pgsql' => self::getPGSQLDB(),
-            'sqlite' => self::getSQLiteDB());
+            'sqlite' => 'sqlite://windows(c%2A'.$kostil.')');
     }
 
 }
 
 ActiveRecord\Config::initialize(function($cfg)
 {
-    $cfg->set_model_directory('../Models');
+    $cfg->set_model_directory(__DIR__ . '/../Models');
     $cfg->set_connections(Config::getConnections());
     $cfg->set_default_connection(Config::$db_type);
 });

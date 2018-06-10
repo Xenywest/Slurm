@@ -19,12 +19,12 @@ class Application
     {
         if(Security::isWhitelisted($this->command_arguments[C::COMMAND]))
         {
-            $controller = Helper::getController($this->command_arguments);
+            $controller = Helper::getController($this->command_arguments[C::COMMAND]);
             $controller::initialize($this->command_arguments);
         }
         else
         {
-            return 'refuse';
+            Logger::log("Error\nNot whitelisted controller\nSyntax: php app.php <add|delete|show> <params>");
         }
     }
 }

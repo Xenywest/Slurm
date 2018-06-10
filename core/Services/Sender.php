@@ -12,25 +12,30 @@ class Sender
     {
 
         $info = array();
-        $iterator = 0;
         var_dump($data);
-        /*foreach ($data as $raw)
+        foreach ($data as $raw)
         {
-            $info[] = $raw;
-            $iterator++;
+            $info[] = array($raw->job_id => $raw->user_messager_token);
 
-            if($iterator === C::SEND_PER_GENERATE_LIMIT)
+            //!TODO send limit to prevent too MANY data send
+            /*if($iterator === C::SEND_PER_GENERATE_LIMIT)
             {
-                $info = json_encode($info);
-                $this->send();
+                $this->prepareSend($info);
 
                 $iterator = 0;
                 $info = array();
-            }
+            }*/
 
-        }*/
+        }
+        $this->prepareSend($info);
+    }
 
-       // json_encode($data);
+
+    private function prepareSend($info)
+    {
+        $info = json_encode($info);
+        var_dump($info);
+        //$this->send();
     }
 
 
