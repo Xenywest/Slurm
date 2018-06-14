@@ -10,7 +10,6 @@ class AddRelate extends Controller
 {
     public function validate($input)
     {
-        var_dump($input);
         if(\count($input) < 4 || \count($input) > 4)
         {
             //few args
@@ -38,6 +37,11 @@ class AddRelate extends Controller
     public function action()
     {
 
+        /*
+         * Use only 8 symbols to insert in DB
+         */
+        $this->arguments[C::USER_CLUSTER_NAME] = self::cutUserClusterName($this->arguments[C::USER_CLUSTER_NAME]);
+
         $user = new User();
         $user->username_cluster = $this->arguments[C::USER_CLUSTER_NAME];
         $user->user_messager_token = $this->arguments[C::USER_TOKEN];
@@ -45,5 +49,10 @@ class AddRelate extends Controller
 
         echo 'saved';
         //!TODO add OUT SUCCESSFUL
+    }
+
+    private static function cutUserClusterName($data)
+    {
+        return substr($data,0,8);
     }
 }

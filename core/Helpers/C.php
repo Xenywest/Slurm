@@ -13,7 +13,7 @@ class C
     const USER_MAX_CHARS = 64;
     const USER_TOKEN = 3;
     const JOB_ID = 1;
-    const USER_NAME = 2;
+    const USER_NAME = 4;
     const JOB_ADDED = '1';
     const JOB_FINISHED = '2';
 }

@@ -29,17 +29,22 @@ require_once __DIR__ . '/../vendor/php-activerecord/ActiveRecord.php';
 
 class Config
 {
+
+
     //SETUP BLOCK
+    //=================BOT URL ===================
+    //link to bot handle script. If bot using webhook must be HTTPS
+    const WEBSITE = 'https://example.com/script.php';
+    //=================END SECTION================
+
     //=================DATABASE===================
     //CHOOSE DB: sqlite OR mysql OR pgsql
     public static $db_type = 'sqlite';
-
     //SQLite information
     //database FULL path from current path /etc/service/core/Config/Config.php
     //for windows use \
     //for linux /
     private static $sqlite_database = 'c:\webserver\www\magister\Slurm\core\Config\sqlite.db';
-
 
     //MYSQL information
     //user
@@ -60,7 +65,7 @@ class Config
     private static $pgsql_address = 'localhost';
     //database
     private static $pgsql_database = 'database';
-    //=================END SECTION=================
+    //=================END SECTION================
 
 
 

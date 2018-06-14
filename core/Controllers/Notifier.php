@@ -11,6 +11,7 @@ class Notifier extends Controller
     public function validate($command_line)
     {
         // TODO: Implement isValidInput() method.
+        //$this->arguments...
         return true;
     }
 
@@ -33,7 +34,8 @@ class Notifier extends Controller
         $this->CheckFromSQLtoConsole($assoc_lexic,$assoc_sqldata);
         $this->CheckFromConsoletoSQL($assoc_lexic, $assoc_sqldata);
         //Notify here
-        $this->Notify();
+        $out_answer = $this->Notify();
+        $this->CleanUp($out_answer);
 
     }
 
@@ -46,7 +48,20 @@ class Notifier extends Controller
         //'all', array('conditions' => array('status = ?', C::JOB_FINISHED)));
 
         $sender = new Sender();
-        $sender->generateRequest($jobs_finished);
+        return $sender->generateRequest($jobs_finished);
+    }
+
+    /*
+     * Delete from DB notified tasks
+     */
+    private function CleanUp($data)
+    {
+        $decoded_data = json_decode($data);
+        foreach ($decoded_data as $job)
+        {
+            $found_job = Job::find('first', array('conditions' => array('job_id = ?', $job)));
+            $found_job->delete();
+        }
     }
 
     /**

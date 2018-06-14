@@ -12,7 +12,6 @@ class Sender
     {
 
         $info = array();
-        var_dump($data);
         foreach ($data as $raw)
         {
             $info[] = array($raw->job_id => $raw->user_messager_token);
@@ -27,15 +26,35 @@ class Sender
             }*/
 
         }
-        $this->prepareSend($info);
+        return $this->send($info);
     }
 
 
-    private function prepareSend($info)
+    private function prepareData($info)
     {
-        $info = json_encode($info);
-        var_dump($info);
-        //$this->send();
+        return base64_encode(json_encode($info));
+    }
+
+    private function send($info)
+    {
+        $prepared_info = $this->prepareData($info);
+        return $this->sendHTTP($prepared_info);
+    }
+
+    private function sendHTTP($request)
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,Config::WEBSITE);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,
+            "data=$request");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $server_output = curl_exec ($ch);
+
+        curl_close ($ch);
+
+        return $server_output;
     }
 
 
