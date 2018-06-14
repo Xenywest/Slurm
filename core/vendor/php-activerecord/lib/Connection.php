@@ -141,7 +141,6 @@ abstract class Connection
 	public static function parse_connection_url($connection_url)
 	{
 		$url = @parse_url($connection_url);
-	var_dump($connection_url);
 		if (!isset($url['host']))
 			throw new DatabaseException('Database host must be specified in the connection string.');
 

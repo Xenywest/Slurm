@@ -15,8 +15,6 @@ class SqliteAdapter extends Connection
 {
 	protected function __construct($info)
 	{
-
-	    var_dump($info);
 		if (!file_exists(\Config::getSQLiteDB()))
 			throw new DatabaseException("Could not find sqlite db:". \Config::getSQLiteDB());
 
