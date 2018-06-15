@@ -44,11 +44,10 @@ class Sender
     private function sendHTTP($request)
     {
         $ch = curl_init();
-
+        $post_fields = array('data'=>$request);
         curl_setopt($ch, CURLOPT_URL,Config::WEBSITE);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,
-            "data=$request");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $server_output = curl_exec ($ch);
 
