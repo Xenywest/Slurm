@@ -6,14 +6,15 @@
  * Time: 18:10
  */
 include 'vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
-$bot = new \TelegramBot\Api\BotApi('448267241:AAEf9HZur3R43pBix_KKw2VMKNWeEVMH5qY');
+use Longman\TelegramBot\Request;
+use Longman\TelegramBot\Telegram;
 
-function decode_content($content)
-{
-    $content = base64_decode($content);
-    return json_decode($content,true);
-}
+$API_KEY  = '448267241:AAEf9HZur3R43pBix_KKw2VMKNWeEVMH5qY';
+$BOT_NAME = 'status_claster_bot';
+
+$telegram = new Telegram($API_KEY, $BOT_NAME);
 
 $text = $_POST['data'];
 $decoded_text = decode_content($text);
@@ -26,6 +27,18 @@ foreach ($decoded_text as $job_id => $data)
     $result = $statement->fetchAll(PDO::FETCH_ASSOC);
     foreach ($result as $raw)
     {
-        $bot->sendMessage($raw['chat_id'], "$job_id выполнено");
+        $data = array('chat_id' => $raw['chat_id'], 'text' => "Job $job_id finished");
+        $result = Request::sendMessage($data);
+        if ($result->isOk()) {
+            echo 'Message sent succesfully to: ' . $raw['chat_id'];
+        } else {
+            echo 'Sorry message not sent to: ' . $raw['chat_id'];
+        }
     }
+}
+
+function decode_content($content)
+{
+    $content = base64_decode($content);
+    return json_decode($content,true);
 }
